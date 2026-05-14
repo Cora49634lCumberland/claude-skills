@@ -1,33 +1,56 @@
----
-description: Run the local review gate before pushing.
+# Code Review
+
+Perform a thorough code review of the specified files or recent changes.
+
+## Usage
+
+```
+/review [files or scope]
+```
+
+## Arguments
+
+- `$FILES` - Files or directories to review (optional, defaults to staged/recent changes)
+
+## What This Does
+
+1. **Analyzes code quality** — checks for readability, maintainability, and style consistency
+2. **Identifies bugs** — looks for logic errors, edge cases, and potential runtime issues
+3. **Security review** — flags potential security vulnerabilities or unsafe patterns
+4. **Performance** — highlights inefficient patterns or unnecessary complexity
+5. **Test coverage** — notes areas that lack tests or have weak assertions
+6. **Documentation** — checks for missing or outdated docstrings and comments
+
+## Review Format
+
+For each issue found, provide:
+- **Severity**: `critical` | `major` | `minor` | `suggestion`
+- **Location**: file and line number
+- **Description**: what the issue is and why it matters
+- **Recommendation**: concrete suggestion to fix or improve it
+
+## Example Output
+
+```
+### Review Summary
+- 0 critical issues
+- 1 major issue
+- 3 minor issues
+- 2 suggestions
+
 ---
 
-Perform a complete review pass:
+**[MAJOR]** `src/auth.py:42`
+Password is logged in plain text during debug mode.
+Recommendation: Mask sensitive fields before logging.
 
-1. Save work in progress and ensure the working tree is clean except for intentional changes.
-2. Install tooling (only first run):
-   ```bash
-   pip install --upgrade pip
-   pip install yamllint==1.35.1 check-jsonschema==0.28.4 safety==3.2.4
-   npm install --global markdown-link-check@3.12.2
-   ```
-3. Lint GitHub workflows:
-   ```bash
-   yamllint -d '{extends: default, rules: {line-length: {max: 160}}}' .github/workflows
-   check-jsonschema --schema github-workflow --base-dir . .github/workflows/*.yml
-   ```
-4. Python syntax check:
-   ```bash
-   python -m compileall marketing-skill product-team c-level-advisor engineering-team ra-qm-team
-   ```
-5. Markdown sanity check:
-   ```bash
-   markdown-link-check README.md
-   ```
-6. Optional dependency audit (if `requirements*.txt` present):
-   ```bash
-   for f in $(find . -name "requirements*.txt" 2>/dev/null); do
-       safety check --full-report --file "$f"
-   done
-   ```
-7. Summarize results in the commit template's Testing section. Fix any failures before continuing.
+**[MINOR]** `src/utils.py:17`
+Function `parse_date` has no docstring.
+Recommendation: Add a docstring describing parameters and return type.
+```
+
+## Instructions
+
+Review the files provided (or recent git diff if none specified): $FILES
+
+Be constructive and specific. Prioritize issues that affect correctness and security over style.
